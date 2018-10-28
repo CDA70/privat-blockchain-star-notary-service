@@ -9,16 +9,57 @@ const StarValidation = require('./validation')
 
 const validationWindow = 300
 
+// RequestAddressValidation 
+async function requestAddressValidation(req, res){
+    const validation = new StarValidation(req)
+    const address = req.body.address
+    try {
+       data = await validation.getPendingAddressRequest(address)
+       console.log(data)
+    }   
+    catch (error) {
+        res.status(401).json({
+            status: 401,
+            message: error.message
+        })
+    }
+    res.json(data)
+}
+
+async function validateSignature(req, res){
+
+    validation = new StarValidation(req)
+    try{
+        const address = req.body.address
+        const signature = req.body.signature
+        console.log(address)
+        console.log(signature)
+        const response = await validation.isMessageSignatureValid(address, signature)
+
+        if (response.registerStar){
+            res.json(response)
+        } else {
+            res.status(401).json(response)
+            
+        }
+    } catch (error){
+         res.status(404).json({
+             status: 404,
+            message: error.message
+         })
+    }
+    
+}
+
 async function addBlock(req, res) {
     const MAX_BYTES_ALLOWED = 500
-    const {star} = this.req.body
+    const {star} = req.body
     const {dec,ra,story} = star
     
-    if (!this.req.body.address) {
+    if (!req.body.address) {
         throw new Error('address cannot be empty!')
     } 
-
-    if (!this.req.body.star) {
+    if (!req.body.star) {
         throw new Error('star parameters cannot be empty!')
     } 
 
@@ -40,30 +81,73 @@ async function addBlock(req, res) {
         throw new Error('Only ASCII charaters are allowed!')
     }
     
-    const body = {address, star} = req.body
-    const story = star.story
+   let starBlock = {
+       address: req.body.address,
+       star: req.body.star
+   }
+    try{
+        await blockchain.addBlock(new Block(starBlock))
+        const height = await blockchain.getBlockHeight()
+        const response = await blockchain.getBlock(height)
 
-    body.star = {
-        dec: star.dec,
-        ra: star.ra,
-        story: new Buffer(story).toString('hex'),
-        mag: star.mag,
-        con: star.con
+        res.status(201).send(response)
+    } catch (error) {
+        res.status(401).json({
+            status: 401,
+            message: error.message
+        })
     }
-    await blockchain.addBlock(new Block(body))
-    const height = await blockchain.getBlockHeight()
-    const response = await blockchain.getBlock(height)
-
-    validation.invalidate(address)
-
-    res.status(201).send(response) 
-
 }
 
+async function getBlockByHeight(res, req){
+    try {
+        const response =  await blockchain.getBlock(req.params.blockHeight)
+        res.send(response)
 
+    }
+       catch (error) {
+           res.status(404).json({
+               "status": 404,
+               "message": "Not found! Requested Block does not exist!"
+           })
+       }
+}
 
+async function getBlockByAddress(res,req){
+    try {
+        const address = req.params.address.slice(1)
+        const response = await blockchain.getBlockByAddress(address)
+        res.send(response)
 
+    }
+       catch (error) {
+           res.status(404).json({
+               "status": 404,
+               "message": "Not found! Requested Block does not exist!"
+           })
+       }
+}
+
+async function getBlockByHash(res,req){
+    try {
+        const hash = req.params.hash.slice(1)
+        const response = await blockchain.getBlockByHash(hash)
+        res.send(response)
+
+    }
+       catch (error) {
+           res.status(404).json({
+               "status": 404,
+               "message": "Not found! Requested Block does not exist!"
+           })
+       }
+}
 
 module.exports = {
+    requestAddressValidation,
+    validateSignature,
     addBlock,
+    getBlockByHeight,
+    getBlockByAddress,
+    getBlockByHash
 };

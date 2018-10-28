@@ -20,39 +20,15 @@ class StarValidation {
         }  
     }
 
-    validateNewStarRequest(){
-        const MAX_STORY_BYTES = 500
-        const {star} = this.req.body
-        const {dec,ra,story} = star
-
-        if (!this.validateAddress() || !this.req.body.star) {
-            throw new Error('Address and star parameters are missing')
-        }
-
-        if (typeof dec !== 'string' || typeof ra !== 'string' || typeof story !== 'string' ||
-            !dec.length || !ra.length || !story.length) {
-                throw new Error ('Fill in proper star information')
-            }
-        
-
-        if (new Buffer(story).length > MAX_STORY_BYTES) {
-            throw new Error('your star story is too long, shorten it to MAX 500 bytes')
-        }
-
-        const isASCII = ((str) => /^[x00-x7F]*$/.test(str))
-
-        if(!isASCII(story)){
-            throw new Error('non ASCII symbols are not allowed')
-        }
-    }
+    
 
     invalidate(address){
         db.del(address)
     }
 
-    saveRequestNewValidation(address){
+    saveRequestNewStarValidation(address){
         const timestamp = Date.now()
-        const message = `$(address):$(timestamp):starRegistry`
+        const message = `${address}:${timestamp}:starRegistry`
         const validationWindow = 300
 
         const data = {
@@ -61,7 +37,10 @@ class StarValidation {
             requestTimeStamp: timestamp,
             validationWindow: validationWindow
         }
+        console.log(data)
+        db.put(data.address, JSON.stringify(data))
     }
+
 
     async getPendingAddressRequest(address){
         return new Promise((resolve, reject) => {
@@ -75,25 +54,25 @@ class StarValidation {
 
                 value = JSON.parse(value)
 
-                const nowMinusfiveMinutes = Date.now() - (5 * 60 * 1000)
-                const isExpired = value.requestTimeStamp < nowMinusfiveMinutes
-
-                if (isExpired) {
-                    resolve(this.saveRequestNewValidation(address))
-                } else {
+                const elapsedMinusFiveMinutes = Date.now() - (5 * 60 * 1000)
+                const isExpired = value.requestTimeStamp < elapsedMinusFiveMinutes
+                if (!isExpired){
                     const data = {
                         address: address,
                         message: value.message,
                         requestTimeStamp: value.requestTimeStamp,
-                        validationWindow: Math.floor((value.requestTimeStamp - nowMinusfiveMinutes) / 1000)
+                        validationWindow: Math.floor((value.requestTimeStamp - elapsedMinusFiveMinutes) / 1000)
                     }
-                    resolve(data)
+                    resolve(data) 
+                } else {
+                    resolve(this.saveRequestNewStarValidation(address))
                 }
             })
         })
     }
    
     async isMessageSignatureValid(address, signature){
+        console.log('start validate message and signature validity, Address: ' + address + ' - signature: ' + signature)
         return new Promise((resolve, reject) => {
             db.get(address, (error, value) => {
                 if (value === undefined) {
@@ -104,41 +83,26 @@ class StarValidation {
                 }
 
                 value = JSON.parse(value)
-
-                if (value.messageSignature === 'valid') {
-                    return resolve({
-                        registerStar: true,
-                        status: value
-                    })
-
-                } else {
-
-                    const nowMinusfiveMinutes = Date.now() - (5 * 60 * 1000)
-                    const isExpired = value.requestTimeStamp < nowMinusfiveMinutes
-                    let isValid = false
+            
+                const isValid = bitconMessage.verify(value.message, address, signature)
+                console.log('is signature valid by bitcoin: ' + isValid)
+            
+                if (isValid) {
+                    const elapsedMinusFiveMinutes = Date.now() - (5 * 60 * 1000)
+                    const isExpired = value.requestTimeStamp < elapsedMinusFiveMinutes
 
                     if (isExpired) {
+                        console.log('val wind is expired')
                         value.validationWindow = 0
                         value.messageSignature = 'Validation Window is expired'
-                    }  else {
-                        validationWindow: Math.floor((value.requestTimeStamp - nowMinusfiveMinutes) / 1000)
+                    } else {
+                        db.put(address, JSON.stringify(value))
 
-                        try {
-                            isValid = bitconMessage.verify(value.message, address, signature)
-                        }
-                        catch (error) {
-                            isValid = false
-                        }
-
-                        value.messageSignature = isValid ? 'valid':'invalid'
-                    
-                    }
-                    db.put(address, JSON.stringify(value))
-
-                    return resolve({
+                        return resolve({
                         registerStar: !isExpired && isValid,
-                            status: value
-                    })
+                        status: value
+                        })   
+                    }
                 }
             })
         })

@@ -1,0 +1,43 @@
+API ENDPOINT
+REQUESTVALIDATION
+curl -X "POST" "http://localhost:8000/requestValidation" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+     "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY"
+    }'
+
+
+MESSAGE-SIGNATURE/VALIDATE
+curl -X "POST" "http://localhost:8000/message-signature/validate" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY",
+  "signature": "IBL0JBCzv7IF6rGS6wQAIuxV8aZtxqZ/v3xjWKV0hiHKa7MlRoHZrhW3AvS48WVNWBNDjMZqOKuktz1HloWm0Uc="
+}'
+
+
+MESSAGE - ADDBLOCK
+curl -X "POST" "http://localhost:8000/block" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY",
+  "star": {
+    "dec": "-26° 29'\'' 24.9",
+    "ra": "16h 29m 1.0s",
+    "story": "Found star using https://www.google.com/sky/"
+  }
+}'
+
+MESSAGE - GETBLOCK by ADDRESS
+curl "http://localhost:8000/stars/address:191YjqYas6LXDA3547czUtXF9nPrHydqnY"
+
+
+
+
+MESSAGE - GETBLOCK by HASH
+curl "http://localhost:8000/stars/hash:9dc8bee4dac6a8c4e1f473e80476391b2f54e2b49cb08de97d782142ef6ea4c0"
+
+
+MESSAGE - GETBLOCK by HEIGHT
+curl "http://localhost:8000/block/8"
+
