@@ -114,9 +114,7 @@ class Blockchain {
                     }
                 }
             })
-        }
-        
-        
+        }        
     }
 
     async getBlockByAddress (address){

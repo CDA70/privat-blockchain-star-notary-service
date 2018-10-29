@@ -9,7 +9,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded( {extended: true} ));
 app.listen(port, () => console.log(`Private Blockchain API app build on ${server} is listening on port ${port}!`))
 
-// call end points
+// call API end points
 app.post('/requestValidation', routers.requestAddressValidation)
 app.post('/message-signature/validate', routers.validateSignature)
 app.post('/block', routers.addBlock)

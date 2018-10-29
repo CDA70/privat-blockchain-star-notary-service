@@ -3,13 +3,10 @@ const Blockchain = require('./simpleChain')
 const blockchain = new Blockchain()
 const Block = require('./block')
 const block = new Block()
-
-
 const StarValidation = require('./validation')
 
-const validationWindow = 300
+//const validationWindow = 300
 
-// RequestAddressValidation 
 async function requestAddressValidation(req, res){
     const validation = new StarValidation(req)
     const address = req.body.address

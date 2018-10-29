@@ -12,7 +12,7 @@ curl -X "POST" "http://localhost:8000/message-signature/validate" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
   "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY",
-  "signature": "IBL0JBCzv7IF6rGS6wQAIuxV8aZtxqZ/v3xjWKV0hiHKa7MlRoHZrhW3AvS48WVNWBNDjMZqOKuktz1HloWm0Uc="
+  "signature": "ID3ssZSbAACemPD8RQEqzhlVat1gjHv7OFk4K0J5DMveBq575q5idX8NYG5iEjDU/CoQpos5vRRfJsj/zyPTApY="
 }'
 
 
@@ -35,7 +35,7 @@ curl "http://localhost:8000/stars/address:191YjqYas6LXDA3547czUtXF9nPrHydqnY"
 
 
 MESSAGE - GETBLOCK by HASH
-curl "http://localhost:8000/stars/hash:9dc8bee4dac6a8c4e1f473e80476391b2f54e2b49cb08de97d782142ef6ea4c0"
+curl "http://localhost:8000/stars/hash:a5e411ff559cf2db239cd529fdb67115d0c3e5884dce5b4200f40c3f54aa87c6"
 
 
 MESSAGE - GETBLOCK by HEIGHT
