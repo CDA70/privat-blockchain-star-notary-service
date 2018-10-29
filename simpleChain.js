@@ -114,11 +114,77 @@ class Blockchain {
                     }
                 }
             })
-        }
-        
-        
+        }        
     }
 
+    async getBlockByAddress (address){
+        const blocks = []
+        let block
+
+        return new Promise((resolve, reject) => {
+            db.createReadStream().on('data', (data) => {
+                if (!this.isGenesis(data.key)){
+                    block = JSON.parse(data.value)
+
+                    if (block.body.address === address) {
+                        block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+                        blocks.push(block)
+                    }
+                }
+            }).on ('error', (error) => {
+                return reject(error)
+            }).on ('close', () => {
+                return resolve(blocks)
+            })
+        })
+    }
+
+    async getBlockByHash (hash){
+        let block
+
+        return new Promise((resolve, reject) => {
+            db.createReadStream().on('data', (data) => {
+                block = JSON.parse(data.value)
+
+                if (block.hash === hash) {
+                   if (!this.isGenesis(data.key)){
+                    block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+                    return resolve(block) 
+                   } else {
+                       return resolve(block)
+                   }
+
+                }
+        
+        }).on ('error', (error) => {
+                return reject(error)
+            }).on ('close', () => {
+                return reject('not found')
+            })
+        })
+    }
+
+    async getBlockByHeight(key){
+        return new Promise((resolve, reject) => {
+           db.get(key, (error, value) => {
+               if (value === undefined){
+                   return reject ('block not found')
+               } else if (error){
+                   return reject(error)
+               }
+               value = JSON.parse(value)
+
+               if (parseInt(key) > 0){
+                   value.body.star.storyDecoded = new Buffer(value.body.star.story, 'hex').toString()
+               }
+               return resolve(value)
+           })
+        })
+    }
+    
+    isGenesis(key){
+        return parseInt(key) === 0
+    }
 
     /* ===== level DB  ================================
     |   persistent data functions 		         	   |
