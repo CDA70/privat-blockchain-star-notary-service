@@ -5,12 +5,12 @@ const Block = require('./block')
 const block = new Block()
 const StarValidation = require('./validation')
 
-//const validationWindow = 300
-
 async function requestAddressValidation(req, res){
     const validation = new StarValidation(req)
     const address = req.body.address
+    console.log('address is undefined: body: ' + req)
     try {
+       console.log('within Try requestAddressValidation ' + address)
        data = await validation.getPendingAddressRequest(address)
        console.log(data)
     }   
@@ -83,6 +83,9 @@ async function addBlock(req, res) {
        star: req.body.star
    }
     try{
+        // Start code reviewer
+        starBlock.star.story = new Buffer(req.body.star.story).toString('hex')
+        // end code reviewer 
         await blockchain.addBlock(new Block(starBlock))
         const height = await blockchain.getBlockHeight()
         const response = await blockchain.getBlock(height)
