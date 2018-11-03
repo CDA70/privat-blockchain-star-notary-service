@@ -34,6 +34,21 @@ Note: Mag stands for magnitude, which is the brightness of the star.
 ### Interesting Star Fact
 The limiting brightness of stars seen with the naked eye is about magnitude 6.5. With binoculars, you can see to magnitudes of about 10. Cen, in this case, stands for Centaurus, one of the 88 constellations that can be found in the sky. Knowing the constellation can help you locate a star more easily.
 
+## Get started
+1. download the repo
+
+2. run npm
+
+``` 
+npm install 
+```
+
+3. Start API Server
+
+``` 
+node index.js 
+```
+
 ## Blockchain ID Validation Routine
 ### Requirement 1: Allow User Request
 The Web API will allow users to submit their request using their wallet address.
@@ -82,6 +97,8 @@ output JSON Response:
 }
 ```
 
+![Postman - requestValidation](./assets/postman-requestValidation.png)
+
 ### Requirement 4: Allow User Message Signature
 After receiving the response, users will prove their blockchain identity by signing a message with their wallet. Once they sign this message, the application will validate their request and grant access to register a star.
 
@@ -118,6 +135,8 @@ Output JSON Response:
 {"registerStar":true,"status":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","message":"191YjqYas6LXDA3547czUtXF9nPrHydqnY:1540839787265:starRegistry","requestTimeStamp":1540839787265,"validationWindow":300}}
 ```
 
+![Postman - signatureValidation](./assets/postman-signatureValidation.png)
+
 ## Step 2: Configure Star Registration Endpoint
 After configuring the Blockchain validation routine, you’ll configure the star registration endpoint. This will allow your application to accept users requests. In this section, we'll provide resources on how to do this effectively.
 
@@ -147,7 +166,7 @@ curl -X "POST" "http://localhost:8000/block" \
      -d $'{
   "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY",
   "star": {
-    "dec": "-26° 29'\'' 24.9",
+    "dec": "-26° 29' 24.9",
     "ra": "16h 29m 1.0s",
     "story": "Found star using https://www.google.com/sky/"
   }
@@ -157,6 +176,8 @@ Output JSON Response
 ```
 {"hash":"74b4f2ad649d4bfae87aa379b6bd8fe9bb416d5fcf78cc73acb871c5af566890","height":13,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/"}},"time":"1540839936","previousBlockHash":"fd2d13f8353a1900854e476c5c9daeacf8185201476caac0392c40618352fb4a"}
 ```
+
+![Postman - addBlock](./assets/postman-addBlock.png)
 
 ## Step 3: Configure Star Lookup
 Now that you have configured the star registration endpoint, you’ll need to configure the star lookup.
@@ -179,6 +200,7 @@ Output JSON RESPONSE
 [{"hash":"a5e411ff559cf2db239cd529fdb67115d0c3e5884dce5b4200f40c3f54aa87c6","height":10,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540762878","previousBlockHash":"2285af4c6a2ae7a9e177ed2e6621fb69d928dd1d39f0530c062f1ff65a8dbee9"},{"hash":"805010dabc7e1046ac9c967f6149b69f820ad522ee6497912aaf24c722cacf65","height":11,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540763061","previousBlockHash":"a5e411ff559cf2db239cd529fdb67115d0c3e5884dce5b4200f40c3f54aa87c6"},{"hash":"fd2d13f8353a1900854e476c5c9daeacf8185201476caac0392c40618352fb4a","height":12,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540768061","previousBlockHash":"805010dabc7e1046ac9c967f6149b69f820ad522ee6497912aaf24c722cacf65"},{"hash":"74b4f2ad649d4bfae87aa379b6bd8fe9bb416d5fcf78cc73acb871c5af566890","height":13,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540839936","previousBlockHash":"fd2d13f8353a1900854e476c5c9daeacf8185201476caac0392c40618352fb4a"},{"hash":"9dc8bee4dac6a8c4e1f473e80476391b2f54e2b49cb08de97d782142ef6ea4c0","height":8,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540758169","previousBlockHash":"d8ae4bf352c6582eab06ea16c60cdd8d5054b8d7a93791442436d272f1792aa2"},{"hash":"2285af4c6a2ae7a9e177ed2e6621fb69d928dd1d39f0530c062f1ff65a8dbee9","height":9,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540758179","previousBlockHash":"9dc8bee4dac6a8c4e1f473e80476391b2f54e2b49cb08de97d782142ef6ea4c0"}]
 ```
 
+![Postman - star by Address](./assets/postman-blockByAddress.png)
 
 ### MESSAGE - GETBLOCK by HASH
 ```
@@ -190,6 +212,8 @@ Output JSON Response
 {"hash":"a5e411ff559cf2db239cd529fdb67115d0c3e5884dce5b4200f40c3f54aa87c6","height":10,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/","storyDecoded":""}},"time":"1540762878","previousBlockHash":"2285af4c6a2ae7a9e177ed2e6621fb69d928dd1d39f0530c062f1ff65a8dbee9"}
 ```
 
+![Postman - star by hash](./assets/postman-blockByHash.png)
+
 ### MESSAGE - GETBLOCK by HEIGHT
 ```
 curl "http://localhost:8000/block/8"
@@ -200,3 +224,4 @@ Output JSON Response
 {"hash":"9dc8bee4dac6a8c4e1f473e80476391b2f54e2b49cb08de97d782142ef6ea4c0","height":8,"body":{"address":"191YjqYas6LXDA3547czUtXF9nPrHydqnY","star":{"dec":"-26� 29' 24.9","ra":"16h 29m 1.0s","story":"Found star using https://www.google.com/sky/"}},"time":"1540758169","previousBlockHash":"d8ae4bf352c6582eab06ea16c60cdd8d5054b8d7a93791442436d272f1792aa2"}
 ```
 
+![Postman - star by Height (ID)](./assets/postman-blockByHeight.png)
