@@ -10,15 +10,10 @@ class StarValidation {
     }
     
     async getPendingAddressRequest(address){
-        console.log('start getpendingaddressrequest, address in getpending: ' + address)
         return new Promise((resolve, reject) => {
-            console.log('within promise')
             db.get(address, (error, value) => {
-                console.log('address: ' + address)
                 if (value === undefined) {
-                    console.log('value is undefined')
-                    //return reject(new Error('address not found'))
-                    // start code reviewer
+                    // start - Code added after review
                     const timestamp = Date.now()
                     const message = `${address}:${timestamp}:starRegistry`
 
@@ -30,15 +25,13 @@ class StarValidation {
                     }
                     db.put(data.address, JSON.stringify(data));
                     return resolve(data);
-                    // end code reviewer
+                    // end - Code added after review
 
                 } else if (error) {
-                    console.log('error in getPendingAddressRequest, if(error)')
                     return reject(error)
                 }
 
                 value = JSON.parse(value)
-                console.log('value: ' + value)
 
                 const elapsedMinusFiveMinutes = Date.now() - (validationWindow * 1000) //5 * 60 * 1000)
                 const isExpired = value.requestTimeStamp < elapsedMinusFiveMinutes
@@ -51,11 +44,9 @@ class StarValidation {
                     }
                     resolve(data) 
                 } else {
-                    //resolve(this.saveRequestNewStarValidation(address))
                     const timestamp = Date.now()
                     const message = `${address}:${timestamp}:starRegistry`
-                    //const validationWindow = 300
-            
+                    
                     const data = {
                         address: address,
                         message: message,
@@ -89,13 +80,12 @@ class StarValidation {
                     const isExpired = value.requestTimeStamp < elapsedMinusFiveMinutes
 
                     if (isExpired) {
-                        //console.log('val wind is expired')
                         value.validationWindow = 0
                         value.messageSignature = 'Validation Window is expired'
                     } else {
-                        //start code reviewer
+                        // start - Code added after review
                         value.validationWindow = Math.floor((value.requestTimeStamp - elapsedMinusFiveMinutes) / 1000);
-                        // end code reviewer
+                        // end - Code added after review
                         db.put(address, JSON.stringify(value))
 
                         return resolve({
@@ -104,14 +94,14 @@ class StarValidation {
                         })   
                     }
                 }
-                //start code reviewer
+                // start - Code added after review
                 else {
                     return reject({
                         status: 400,
                         error: "Signature is invalid!"
                     });
                 }
-                // end code reviewer
+                // end - Code added after review
             })
         })
     }

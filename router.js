@@ -83,9 +83,9 @@ async function addBlock(req, res) {
        star: req.body.star
    }
     try{
-        // Start code reviewer
+        // start - Code added after review 
         starBlock.star.story = new Buffer(req.body.star.story).toString('hex')
-        // end code reviewer 
+        // end - Code added after review 
         await blockchain.addBlock(new Block(starBlock))
         const height = await blockchain.getBlockHeight()
         const response = await blockchain.getBlock(height)
@@ -118,7 +118,6 @@ async function getBlockByAddress(res,req){
         const address = req.params.address.slice(1)
         const response = await blockchain.getBlockByAddress(address)
         res.send(response)
-
     }
        catch (error) {
            res.status(404).json({
