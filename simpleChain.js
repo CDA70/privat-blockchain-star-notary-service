@@ -170,12 +170,9 @@ class Blockchain {
                value = JSON.parse(value)
 
                if (parseInt(key) > 0){
-                   //block.body.star.story = new Buffer(block.body.star.story).toString('hex')
                    value.body.star.storyDecoded = new Buffer(value.body.star.story, 'hex').toString()
-                  
                }
-               return resolve(value)
-               
+               return resolve(value)  
            })
         })
     }
