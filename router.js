@@ -112,7 +112,6 @@ async function addBlock(req, res) {
 
 async function getBlockByHeight(res, req){
     try {
-        console.log('req.params.blockhieght: ' + req.params.blockHeight)
         const response =  await blockchain.getBlockByHeight(req.params.blockHeight)
         res.send(response)
 

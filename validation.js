@@ -40,7 +40,8 @@ class StarValidation {
                         address: address,
                         message: message,
                         requestTimeStamp: timestamp,
-                        validationWindow: validationWindow
+                        validationWindow: validationWindow,
+                        messageSignature: 'valid'
                     }
                     db.put(data.address, JSON.stringify(data));
                     return resolve(data);
@@ -58,7 +59,8 @@ class StarValidation {
                         address: address,
                         message: value.message,
                         requestTimeStamp: value.requestTimeStamp,
-                        validationWindow: Math.floor((value.requestTimeStamp - elapsedMinusFiveMinutes) / 1000)
+                        validationWindow: Math.floor((value.requestTimeStamp - elapsedMinusFiveMinutes) / 1000),
+                        messageSignature: 'valid'
                     }
                     resolve(data) 
                 } else {
@@ -69,7 +71,8 @@ class StarValidation {
                         address: address,
                         message: message,
                         requestTimeStamp: timestamp,
-                        validationWindow: validationWindow
+                        validationWindow: validationWindow,
+                        messageSignature: 'valid'
                     }
                     console.log(data)
                     db.put(data.address, JSON.stringify(data))

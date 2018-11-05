@@ -119,14 +119,13 @@ class Blockchain {
     async getBlockByAddress (address){
         const blocks = []
         let block
-
         return new Promise((resolve, reject) => {
             db.createReadStream().on('data', (data) => {
                 if (!this.isGenesis(data.key)){
                     block = JSON.parse(data.value)
                    
                     if (block.body.address === address) {
-                        block.body.star.story = new Buffer(block.body.star.story, 'hex').toString()
+                        block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
                         blocks.push(block)
                         return resolve(blocks)
                     }
@@ -134,7 +133,6 @@ class Blockchain {
             }).on ('error', (error) => {
                 return reject(error)
             }).on ('close', () => {
-                // return resolve(blocks)
                 return reject('not found')
             })
         })
@@ -142,18 +140,17 @@ class Blockchain {
 
     async getBlockByHash (hash){
         let block
-
         return new Promise((resolve, reject) => {
             db.createReadStream().on('data', (data) => {
-                block = JSON.parse(data.value)
+                if (!this.isGenesis(data.key)){
+                    block = JSON.parse(data.value)
 
-                if (block.hash === hash) {
-                   if (!this.isGenesis(data.key)){
-                    block.body.star.story = new Buffer(block.body.star.story, 'hex').toString()
-                    return resolve(block) 
-                   } 
+                    if (block.hash === hash) {
+                        block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+                        return resolve(block) 
+                    } 
                 }
-        }).on ('error', (error) => {
+            }).on ('error', (error) => {
                 return reject(error)
             }).on ('close', () => {
                 return reject('not found')
@@ -162,6 +159,7 @@ class Blockchain {
     }
     
     async getBlockByHeight(key){
+        
         return new Promise((resolve, reject) => {
            db.get(key, (error, value) => {
                if (value === undefined){
@@ -172,9 +170,12 @@ class Blockchain {
                value = JSON.parse(value)
 
                if (parseInt(key) > 0){
-                   value.body.star.story = new Buffer(value.body.star.story, 'hex').toString()
+                   //block.body.star.story = new Buffer(block.body.star.story).toString('hex')
+                   value.body.star.storyDecoded = new Buffer(value.body.star.story, 'hex').toString()
+                  
                }
                return resolve(value)
+               
            })
         })
     }
