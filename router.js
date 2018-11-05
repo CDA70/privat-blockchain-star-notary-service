@@ -5,12 +5,14 @@ const Block = require('./block')
 const block = new Block()
 const StarValidation = require('./validation')
 
+
 async function requestAddressValidation(req, res){
     const validation = new StarValidation(req)
     const address = req.body.address
-    console.log('address is undefined: body: ' + req)
+    if (!address) 
+       return res.status(400).send({message: 'the address is required, please fill in address!'})
+    
     try {
-       console.log('within Try requestAddressValidation ' + address)
        data = await validation.getPendingAddressRequest(address)
        console.log(data)
     }   
@@ -23,16 +25,17 @@ async function requestAddressValidation(req, res){
     res.json(data)
 }
 
+
+
+
 async function validateSignature(req, res){
 
     validation = new StarValidation(req)
+    
     try{
         const address = req.body.address
         const signature = req.body.signature
-        console.log(address)
-        console.log(signature)
         const response = await validation.isMessageSignatureValid(address, signature)
-
         if (response.registerStar){
             res.json(response)
         } else {
@@ -54,10 +57,11 @@ async function addBlock(req, res) {
     const {dec,ra,story} = star
     
     if (!req.body.address) {
-        throw new Error('address cannot be empty!')
-    } 
+        return res.status(400).send({message: 'the address is required, please fill in address!'})
+    }  
+
     if (!req.body.star) {
-        throw new Error('star parameters cannot be empty!')
+        return res.status(400).send({message: 'Star parameter cannot be empty!'})
     } 
 
     if (typeof dec   !== 'string' || 
@@ -66,29 +70,36 @@ async function addBlock(req, res) {
         !dec.length               || 
         !ra.length                || 
         !story.length) {
-                throw new Error ('Fill in proper star information')
+                return res.status(400).send({message: 'Fill in proper star information!'})
     }
     
     if (new Buffer(story).length > MAX_BYTES_ALLOWED) {
-        throw new Error('your star story is too long, shorten it to MAX 500 bytes')
+        return res.status(400).send({message: 'your star story is too long, shorten it to MAX 500 bytes!'})
     }
 
     // npm install is-ascii save
     if (!isAscii(story)){
-        throw new Error('Only ASCII charaters are allowed!')
+        return res.status(400).send({message: 'Only ASCII charaters are allowed!'})
     }
+
+    validation = new StarValidation(req)
+    const isValidKey = await validation.validKey(req.body.address)
+    if ( isValidKey === 'invalidKey') {
+        return res.status(400).send({message: 'signature is not valid!'})
+    }
+    
     
    let starBlock = {
        address: req.body.address,
        star: req.body.star
    }
-    try{
-        // start - Code added after review 
+    try{ 
         starBlock.star.story = new Buffer(req.body.star.story).toString('hex')
-        // end - Code added after review 
         await blockchain.addBlock(new Block(starBlock))
         const height = await blockchain.getBlockHeight()
         const response = await blockchain.getBlock(height)
+        await validation.deleteAddress(req.body.address)
+        
 
         res.status(201).send(response)
     } catch (error) {
@@ -101,7 +112,8 @@ async function addBlock(req, res) {
 
 async function getBlockByHeight(res, req){
     try {
-        const response =  await blockchain.getBlock(req.params.blockHeight)
+        console.log('req.params.blockhieght: ' + req.params.blockHeight)
+        const response =  await blockchain.getBlockByHeight(req.params.blockHeight)
         res.send(response)
 
     }
@@ -134,13 +146,15 @@ async function getBlockByHash(res,req){
         res.send(response)
 
     }
-       catch (error) {
-           res.status(404).json({
-               "status": 404,
-               "message": "Not found! Requested Block does not exist!"
-           })
-       }
+    catch (error) {
+        res.status(404).json({
+            "status": 404,
+            "message": "Not found! Requested Block does not exist!"
+        })
+    }
 }
+
+
 
 module.exports = {
     requestAddressValidation,

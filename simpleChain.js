@@ -51,8 +51,7 @@ class Blockchain {
         }
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
         this.addDataToLevelDB(newBlock.height, JSON.stringify(newBlock))
-
-    }
+    }   
 
     async getBlock(blockHeight) {
         return JSON.parse(await this.getLevelDBData(blockHeight))
@@ -125,16 +124,18 @@ class Blockchain {
             db.createReadStream().on('data', (data) => {
                 if (!this.isGenesis(data.key)){
                     block = JSON.parse(data.value)
-
+                   
                     if (block.body.address === address) {
-                        block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+                        block.body.star.story = new Buffer(block.body.star.story, 'hex').toString()
                         blocks.push(block)
+                        return resolve(blocks)
                     }
                 }
             }).on ('error', (error) => {
                 return reject(error)
             }).on ('close', () => {
-                return resolve(blocks)
+                // return resolve(blocks)
+                return reject('not found')
             })
         })
     }
@@ -148,14 +149,10 @@ class Blockchain {
 
                 if (block.hash === hash) {
                    if (!this.isGenesis(data.key)){
-                    block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString()
+                    block.body.star.story = new Buffer(block.body.star.story, 'hex').toString()
                     return resolve(block) 
-                   } else {
-                       return resolve(block)
-                   }
-
+                   } 
                 }
-        
         }).on ('error', (error) => {
                 return reject(error)
             }).on ('close', () => {
@@ -163,7 +160,7 @@ class Blockchain {
             })
         })
     }
-
+    
     async getBlockByHeight(key){
         return new Promise((resolve, reject) => {
            db.get(key, (error, value) => {
@@ -175,12 +172,13 @@ class Blockchain {
                value = JSON.parse(value)
 
                if (parseInt(key) > 0){
-                   value.body.star.storyDecoded = new Buffer(value.body.star.story, 'hex').toString()
+                   value.body.star.story = new Buffer(value.body.star.story, 'hex').toString()
                }
                return resolve(value)
            })
         })
     }
+    
     
     isGenesis(key){
         return parseInt(key) === 0

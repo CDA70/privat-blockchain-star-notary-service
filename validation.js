@@ -9,11 +9,30 @@ class StarValidation {
       this.req = req
     }
     
+    async validKey(key){
+        return new Promise((resolve, reject) => {
+            db.get(key, (error, value) => {
+                if (value === undefined) {
+                    return resolve('invalidKey')
+                } else {
+                    return resolve('validKey')
+                }
+            })          
+        })
+    }
+
+    async deleteAddress(address){
+        db.del(address, (error) => {
+            if (error) {
+                reject(error)
+            }
+        })
+    }
+
     async getPendingAddressRequest(address){
         return new Promise((resolve, reject) => {
             db.get(address, (error, value) => {
                 if (value === undefined) {
-                    // start - Code added after review
                     const timestamp = Date.now()
                     const message = `${address}:${timestamp}:starRegistry`
 
@@ -25,8 +44,7 @@ class StarValidation {
                     }
                     db.put(data.address, JSON.stringify(data));
                     return resolve(data);
-                    // end - Code added after review
-
+                    
                 } else if (error) {
                     return reject(error)
                 }
@@ -65,6 +83,7 @@ class StarValidation {
     async isMessageSignatureValid(address, signature){
         return new Promise((resolve, reject) => {
             db.get(address, (error, value) => {
+                console.log('value isMessageSignatureValid: ' + value)
                 if (value === undefined) {
                     return reject(new Error('address not found'))
 
@@ -83,9 +102,7 @@ class StarValidation {
                         value.validationWindow = 0
                         value.messageSignature = 'Validation Window is expired'
                     } else {
-                        // start - Code added after review
                         value.validationWindow = Math.floor((value.requestTimeStamp - elapsedMinusFiveMinutes) / 1000);
-                        // end - Code added after review
                         db.put(address, JSON.stringify(value))
 
                         return resolve({
@@ -94,18 +111,15 @@ class StarValidation {
                         })   
                     }
                 }
-                // start - Code added after review
                 else {
                     return reject({
                         status: 400,
                         error: "Signature is invalid!"
                     });
                 }
-                // end - Code added after review
             })
         })
     }
-
 }
 
 module.exports = StarValidation

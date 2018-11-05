@@ -22,7 +22,7 @@ curl -X "POST" "http://localhost:8000/block" \
      -d $'{
   "address": "191YjqYas6LXDA3547czUtXF9nPrHydqnY",
   "star": {
-    "dec": "-26° 29'\'' 24.9",
+    "dec": "-26° 29' 24.9",
     "ra": "16h 29m 1.0s",
     "story": "Found star using https://www.google.com/sky/"
   }
